@@ -1,10 +1,6 @@
 from flask import Flask, render_template, jsonify, request, Response
-import random
-import time
 import json
 import os
-from flask_socketio import SocketIO
-import eventlet
 import csv
 import struct
 import datetime
@@ -12,13 +8,10 @@ from flask_cors import CORS
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Persistent storage path for Render Disk
 DATA_DIR = '/opt/render/data'
 FLIGHT_HISTORY_FILE = os.path.join(DATA_DIR, 'flight_data.json')
-iridium_latitude = data_json.get('iridium_latitude')
-iridium_longitude = data_json.get('iridium_longitude')
 
 # In-memory store, initialized from disk
 message_history = []
@@ -52,14 +45,16 @@ message_history = load_flight_history()
 @app.route('/')
 def index():
     return render_template('index.html')
-    
+
 @app.route('/rockblock', methods=['POST'])
 def handle_rockblock():
     data_json = request.get_json()
     imei = data_json.get('imei')
     data = data_json.get('data')
+    iridium_latitude = data_json.get('iridium_latitude')  # Moved inside function
+    iridium_longitude = data_json.get('iridium_longitude')  # Moved inside function
 
-    print(f"Received POST /rockblock - IMEI: {imei}, Data: {data}")
+    print(f"Received POST /rockblock - IMEI: {imei}, Data: {data}, Iridium Lat: {iridium_latitude}, Iridium Lon: {iridium_longitude}")
 
     if imei != "301434060195570":
         print("Invalid credentials")
@@ -159,7 +154,6 @@ def download_history():
 @app.route('/message-history', methods=['GET'])
 def message_history_endpoint():
     return jsonify(message_history) if message_history else jsonify([])
-
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
