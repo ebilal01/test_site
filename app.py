@@ -54,7 +54,7 @@ def handle_rockblock():
     iridium_latitude = data_json.get('iridium_latitude')  # Moved inside function
     iridium_longitude = data_json.get('iridium_longitude')  # Moved inside function
 
-    print(f"Received POST /rockblock - IMEI: {imei}, Data: {data}, Iridium Lat: {iridium_latitude}, Iridium Lon: {iridium_longitude}")
+print(f"Received POST /rockblock - IMEI: {imei}, Data: {data}")
 
     if imei != "301434060195570":
         print("Invalid credentials")
