@@ -48,13 +48,24 @@ def index():
 
 @app.route('/rockblock', methods=['POST'])
 def handle_rockblock():
-    data_json = request.get_json()
+    # Ensure the request has JSON content
+    if not request.is_json:
+        print("Invalid request: No JSON content")
+        return "FAILED,11,Invalid request: No JSON content", 400
+
+    try:
+        data_json = request.get_json()
+    except Exception as e:
+        print(f"Error parsing JSON: {e}")
+        return "FAILED,12,Error parsing JSON", 400
+
+    # Extract fields with validation
     imei = data_json.get('imei')
     data = data_json.get('data')
-    iridium_latitude = data_json.get('iridium_latitude')  # Moved inside function
-    iridium_longitude = data_json.get('iridium_longitude')  # Moved inside function
+    iridium_latitude = data_json.get('iridium_latitude')
+    iridium_longitude = data_json.get('iridium_longitude')
 
-print(f"Received POST /rockblock - IMEI: {imei}, Data: {data}")
+    print(f"Received POST /rockblock - IMEI: {imei}, Data: {data}")
 
     if imei != "301434060195570":
         print("Invalid credentials")
@@ -65,7 +76,11 @@ print(f"Received POST /rockblock - IMEI: {imei}, Data: {data}")
         return "FAILED,16,No data provided", 400
 
     try:
+        # Validate and process data
         byte_data = bytearray.fromhex(data)
+        if len(byte_data) < 50:
+            print(f"Data too short: {len(byte_data)} bytes, expected at least 50")
+            return "FAILED,18,Data too short", 400
         sensor_data = struct.unpack('IhffHhhhhhhhhhhhhhhhh', byte_data[:50])
         sensor_data = list(sensor_data)
 
