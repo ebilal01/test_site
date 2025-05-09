@@ -17,6 +17,8 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # Persistent storage path for Render Disk
 DATA_DIR = '/opt/render/data'
 FLIGHT_HISTORY_FILE = os.path.join(DATA_DIR, 'flight_data.json')
+iridium_latitude = data_json.get('iridium_latitude')
+iridium_longitude = data_json.get('iridium_longitude')
 
 # In-memory store, initialized from disk
 message_history = []
@@ -92,6 +94,8 @@ def handle_rockblock():
             "siv": sensor_data[1],
             "latitude": sensor_data[2],
             "longitude": sensor_data[3],
+            "iridium_latitude": iridium_latitude if iridium_latitude is not None else None,
+            "iridium_longitude": iridium_longitude if iridium_longitude is not None else None,
             "altitude": sensor_data[4],
             "pressure_mbar": sensor_data[5],
             "temperature_pht_c": sensor_data[6],
